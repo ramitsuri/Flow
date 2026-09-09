@@ -145,6 +145,7 @@ fun Modifier.videoPlayerControls(
             var pendingForwardTargetMs: Long? = null
             var pendingBackTargetMs: Long? = null
             var speedBeforeLongPress: Float? = null
+            var isLongPressed = false
 
             var revealedOnTap = false
             var hidePending = false
@@ -264,37 +265,44 @@ fun Modifier.videoPlayerControls(
                     val bottomExclusionZone = if (currentIsFullscreen) 80f else 120f
                     if (offset.y > size.height - bottomExclusionZone) return@detectPlayerTaps
 
-                    val manager = EnhancedPlayerManager.getInstance()
-                    val player = manager.getPlayer()
-                    if (player != null && !currentIsSpeedBoostActive) {
-                        val restoreSpeed =
-                            manager.playerState.value.playbackSpeed
-                                .takeIf { it > 0f }
-                                ?: player.playbackParameters.speed
-                        speedBeforeLongPress = restoreSpeed
-                        currentOnNormalSpeedChange(restoreSpeed)
-                        currentOnSpeedBoostChange(true)
-                        manager.setPlaybackSpeed(
-                            VideoPlayerUtils.boostedPlaybackSpeed(
-                                currentSpeed = restoreSpeed,
-                                targetSpeed = currentLongPressPlaybackSpeed,
-                            ),
-                        )
-                        haptics.playerPress()
+                    if (isLongPressed) {
+                        isLongPressed = false
+                        val manager = EnhancedPlayerManager.getInstance()
+                        val player = manager.getPlayer()
+                        if (player != null && !currentIsSpeedBoostActive) {
+                            val restoreSpeed =
+                                manager.playerState.value.playbackSpeed
+                                    .takeIf { it > 0f }
+                                    ?: player.playbackParameters.speed
+                            speedBeforeLongPress = restoreSpeed
+                            currentOnNormalSpeedChange(restoreSpeed)
+                            currentOnSpeedBoostChange(true)
+                            manager.setPlaybackSpeed(
+                                VideoPlayerUtils.boostedPlaybackSpeed(
+                                    currentSpeed = restoreSpeed,
+                                    targetSpeed = currentLongPressPlaybackSpeed,
+                                ),
+                            )
+                            haptics.playerPress()
+                        }
+                    } else {
+                        isLongPressed = true
+                        val restoreSpeed = speedBeforeLongPress
+                        if (restoreSpeed != null) {
+                            EnhancedPlayerManager.getInstance().setPlaybackSpeed(restoreSpeed)
+                            currentOnNormalSpeedChange(restoreSpeed)
+                            speedBeforeLongPress = null
+                            currentOnSpeedBoostChange(false)
+                            haptics.playerTick()
+                        }
                     }
                 },
                 onLongPressReleased = {
-                    val restoreSpeed = speedBeforeLongPress
-                    if (restoreSpeed != null) {
-                        EnhancedPlayerManager.getInstance().setPlaybackSpeed(restoreSpeed)
-                        currentOnNormalSpeedChange(restoreSpeed)
-                        speedBeforeLongPress = null
-                        currentOnSpeedBoostChange(false)
-                        haptics.playerTick()
-                    }
+                    // Nothing
                 },
             )
-        }.pointerInput(currentIsFullscreen) {
+        }
+        .pointerInput(currentIsFullscreen) {
             if (!currentIsFullscreen) return@pointerInput
 
             var isCenterZone = false

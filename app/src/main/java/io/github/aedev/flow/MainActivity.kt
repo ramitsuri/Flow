@@ -194,8 +194,6 @@ class MainActivity : ComponentActivity() {
             var systemLightThemeMode by remember { mutableStateOf(ThemeMode.DARK) }
             var systemDarkThemeMode by remember { mutableStateOf(ThemeMode.DARK) }
             var systemDarkThemeVariant by remember { mutableStateOf(ThemeVariant.DARK) }
-            // State to control splash visibility
-            var showSplash by remember { mutableStateOf(true) }
 
             val context = LocalContext.current
             val configuration = LocalConfiguration.current
@@ -430,15 +428,6 @@ class MainActivity : ComponentActivity() {
                                     },
                                 )
                             }
-                        }
-
-                        // 2. THE SPLASH SCREEN (Z-Index Top)
-                        if (showSplash) {
-                            io.github.aedev.flow.ui.components.FlowSplashScreen(
-                                onAnimationFinished = {
-                                    showSplash = false
-                                },
-                            )
                         }
                     }
                 }

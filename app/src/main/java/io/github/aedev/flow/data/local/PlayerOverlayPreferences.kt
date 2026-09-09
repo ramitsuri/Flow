@@ -1,14 +1,14 @@
 package io.github.aedev.flow.data.local
 
 data class PlayerOverlayPreferences(
-    val castEnabled: Boolean = true,
+    val castEnabled: Boolean = false,
     val captionsEnabled: Boolean = false,
-    val pipEnabled: Boolean = false,
+    val pipEnabled: Boolean = true,
     val autoplayEnabled: Boolean = false,
     val sleepTimerEnabled: Boolean = true,
-    val speedIndicatorEnabled: Boolean = false,
-    val commentsEnabled: Boolean = true,
-    val fullscreenTitleEnabled: Boolean = false,
+    val speedIndicatorEnabled: Boolean = true,
+    val commentsEnabled: Boolean = false,
+    val fullscreenTitleEnabled: Boolean = true,
     val showControlsWhileLoading: Boolean = false,
     val fullscreenSeekbarHorizontalPaddingDp: Int =
         resolveSeekbarHorizontalPaddingDp(

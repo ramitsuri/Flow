@@ -151,7 +151,7 @@ fun FlowApp(
         FlowNeuroEngine.initialize(context)
         DeepFlowManager.initialize(context)
         val bypass = activity?.intent?.getBooleanExtra(MainActivity.EXTRA_BENCHMARK_BYPASS_ONBOARDING, false) == true
-        needsOnboarding = if (bypass) false else FlowNeuroEngine.needsOnboarding()
+        needsOnboarding = false
     }
 
     LaunchedEffect(sleepTimerCloseAppOnExpiry) {
@@ -185,7 +185,6 @@ fun FlowApp(
     }
 
     HandleDeepLinks(deeplinkVideoId, isShort, navController, onDeeplinkConsumed)
-    OfflineMonitor(context, navController, snackbarHostState, currentRoute)
 
     val selectedBottomNavIndex = remember { mutableIntStateOf(resolvedDefaultNavTabIndex) }
     val showBottomNav = remember { mutableStateOf(true) }

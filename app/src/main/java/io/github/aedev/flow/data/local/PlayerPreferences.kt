@@ -442,7 +442,7 @@ class PlayerPreferences(
             .map { preferences ->
                 preferences[Keys.BRIGHTNESS_SWIPE_GESTURES_ENABLED]
                     ?: preferences[Keys.SWIPE_GESTURES_ENABLED]
-                    ?: true
+                    ?: false
             }
 
     val rememberBrightnessEnabled: Flow<Boolean> =
@@ -462,7 +462,7 @@ class PlayerPreferences(
             .map { preferences ->
                 preferences[Keys.VOLUME_SWIPE_GESTURES_ENABLED]
                     ?: preferences[Keys.SWIPE_GESTURES_ENABLED]
-                    ?: true
+                    ?: false
             }
 
     val seekSwipeGesturesEnabled: Flow<Boolean> =
@@ -756,7 +756,7 @@ class PlayerPreferences(
     val shortsContentEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.SHORTS_CONTENT_ENABLED] ?: true
+                preferences[Keys.SHORTS_CONTENT_ENABLED] ?: false
             }
 
     suspend fun setShortsContentEnabled(enabled: Boolean) {
@@ -769,7 +769,7 @@ class PlayerPreferences(
     val shortsShelfEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.SHORTS_SHELF_ENABLED] ?: true
+                preferences[Keys.SHORTS_SHELF_ENABLED] ?: false
             }
 
     val effectiveShortsShelfEnabled: Flow<Boolean> =
@@ -785,7 +785,7 @@ class PlayerPreferences(
     val homeShortsShelfEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.HOME_SHORTS_SHELF_ENABLED] ?: true
+                preferences[Keys.HOME_SHORTS_SHELF_ENABLED] ?: false
             }
 
     val effectiveHomeShortsShelfEnabled: Flow<Boolean> =
@@ -811,7 +811,7 @@ class PlayerPreferences(
     val shortsNavigationEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.SHORTS_NAVIGATION_ENABLED] ?: true
+                preferences[Keys.SHORTS_NAVIGATION_ENABLED] ?: false
             }
 
     val effectiveShortsNavigationEnabled: Flow<Boolean> =
@@ -840,7 +840,7 @@ class PlayerPreferences(
     val musicNavigationEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.MUSIC_NAVIGATION_ENABLED] ?: true
+                preferences[Keys.MUSIC_NAVIGATION_ENABLED] ?: false
             }
 
     suspend fun setMusicNavigationEnabled(enabled: Boolean) {
@@ -853,7 +853,7 @@ class PlayerPreferences(
     val searchNavigationEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.SEARCH_NAV_TAB_ENABLED] ?: false
+                preferences[Keys.SEARCH_NAV_TAB_ENABLED] ?: true
             }
 
     suspend fun setSearchNavigationEnabled(enabled: Boolean) {
@@ -879,7 +879,7 @@ class PlayerPreferences(
     val continueWatchingEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.CONTINUE_WATCHING_ENABLED] ?: true
+                preferences[Keys.CONTINUE_WATCHING_ENABLED] ?: false
             }
 
     suspend fun setContinueWatchingEnabled(enabled: Boolean) {
@@ -892,7 +892,7 @@ class PlayerPreferences(
     val showRelatedVideos: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.SHOW_RELATED_VIDEOS] ?: true
+                preferences[Keys.SHOW_RELATED_VIDEOS] ?: false
             }
 
     suspend fun setShowRelatedVideos(enabled: Boolean) {
@@ -1151,7 +1151,7 @@ class PlayerPreferences(
     val backgroundPlayEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.BACKGROUND_PLAY_ENABLED] ?: false
+                preferences[Keys.BACKGROUND_PLAY_ENABLED] ?: true
             }
 
     suspend fun setBackgroundPlayEnabled(enabled: Boolean) {
@@ -1853,7 +1853,7 @@ class PlayerPreferences(
 
     val commentsPreviewEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
-            .map { preferences -> preferences[Keys.COMMENTS_PREVIEW_ENABLED] ?: true }
+            .map { preferences -> preferences[Keys.COMMENTS_PREVIEW_ENABLED] ?: false }
 
     suspend fun setCommentsPreviewEnabled(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
@@ -1863,7 +1863,7 @@ class PlayerPreferences(
 
     val commentsEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
-            .map { preferences -> preferences[Keys.COMMENTS_ENABLED] ?: true }
+            .map { preferences -> preferences[Keys.COMMENTS_ENABLED] ?: false }
 
     suspend fun setCommentsEnabled(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
@@ -1883,7 +1883,7 @@ class PlayerPreferences(
 
     val subscriptionShowShorts: Flow<Boolean> =
         context.playerPreferencesDataStore.data
-            .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_SHORTS] ?: true }
+            .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_SHORTS] ?: false }
 
     val effectiveSubscriptionShowShorts: Flow<Boolean> =
         combine(shortsContentEnabled, subscriptionShowShorts) { master, own -> master && own }
@@ -1896,7 +1896,7 @@ class PlayerPreferences(
 
     val subscriptionShowLive: Flow<Boolean> =
         context.playerPreferencesDataStore.data
-            .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_LIVE] ?: true }
+            .map { preferences -> preferences[Keys.SUBSCRIPTION_SHOW_LIVE] ?: false }
 
     suspend fun setSubscriptionShowLive(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
@@ -2257,7 +2257,7 @@ class PlayerPreferences(
     // Show app logo icon in home screen top bar (default on)
     val showAppLogoIcon: Flow<Boolean> =
         context.playerPreferencesDataStore.data
-            .map { preferences -> preferences[Keys.SHOW_APP_LOGO_ICON] ?: true }
+            .map { preferences -> preferences[Keys.SHOW_APP_LOGO_ICON] ?: false }
 
     suspend fun setShowAppLogoIcon(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
@@ -2722,7 +2722,7 @@ class PlayerPreferences(
     val showRestoredMusicMiniPlayer: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.SHOW_RESTORED_MUSIC_MINI_PLAYER] ?: true
+                preferences[Keys.SHOW_RESTORED_MUSIC_MINI_PLAYER] ?: false
             }
 
     suspend fun setShowRestoredMusicMiniPlayer(enabled: Boolean) {
@@ -2783,7 +2783,7 @@ class PlayerPreferences(
 
     val deepFlowSaveToHistory: Flow<Boolean> =
         context.playerPreferencesDataStore.data
-            .map { preferences -> preferences[Keys.DEEP_FLOW_SAVE_HISTORY] ?: false }
+            .map { preferences -> preferences[Keys.DEEP_FLOW_SAVE_HISTORY] ?: true }
 
     suspend fun setDeepFlowSaveToHistory(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->

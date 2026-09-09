@@ -264,7 +264,14 @@ fun PremiumControlsOverlay(
     val fullscreenSeekbarBottomPadding = if (isFullscreen) 30.dp else 0.dp
     val bottomControlHorizontalPadding = if (isFullscreen) 56.dp else 12.dp
     val topControlHorizontalPadding = (bottomControlHorizontalPadding - OverlayActionIconInset).coerceAtLeast(0.dp)
-    val topControlVerticalPadding = if (isFullscreen) 8.dp else 4.dp
+    val topControlVerticalPadding = if (isFullscreen) {
+        WindowInsets.displayCutout
+            .asPaddingValues()
+            .calculateTopPadding()
+            .plus(64.dp)
+    } else {
+        4.dp
+    }
     val portraitFullscreenTopPadding =
         if (isFullscreen && isPortraitFullscreen) {
             WindowInsets.displayCutout
@@ -376,7 +383,8 @@ fun PremiumControlsOverlay(
                         layout(placeable.width, placeable.height) {
                             if (controlsPlaced) placeable.place(0, 0)
                         }
-                    }.background(
+                    }
+                    .background(
                         when {
                             isTouchLocked -> Color.Transparent
                             isInitialLoading -> PlayerScrim
