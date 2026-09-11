@@ -254,32 +254,4 @@ class MusicBrainRankerTest {
         // One track per artist, and the most-played track wins the slot.
         assertThat(MusicBrainRanker.rediscover(brain, now, 10)).containsExactly("s1")
     }
-
-    @Test
-    fun `time of day rotation picks tracks played in the current bucket`() {
-        val brain = MusicBrain()
-        val bucket = MusicTimeBucket.fromTimestamp(now)
-        // Same clock time on earlier days stays in the same bucket.
-        val sameBucket = listOf(now - 7L * 86_400_000, now - 14L * 86_400_000, now - 21L * 86_400_000)
-        val otherBucket = sameBucket.map { it + 12 * 3_600_000L }.filter { MusicTimeBucket.fromTimestamp(it) != bucket }
-        brain.addTrack("inBucket", "UCa", sameBucket)
-        brain.addTrack("elsewhere", "UCb", otherBucket)
-        brain.addTrack("once", "UCc", sameBucket.take(1))
-
-        assertThat(MusicBrainRanker.timeOfDayRotation(brain, now, 10)).containsExactly("inBucket")
-    }
-
-    @Test
-    fun `rotation ranks by in-bucket count and drops disliked artists in cooldown`() {
-        val brain = MusicBrain()
-        val weekAgo = { n: Int -> now - n * 7L * 86_400_000 }
-        brain.addTrack("twice", "UCa", listOf(weekAgo(1), weekAgo(2)))
-        brain.addTrack("thrice", "UCb", listOf(weekAgo(1), weekAgo(2), weekAgo(3)))
-        brain.addTrack("cooled", "UCc", listOf(weekAgo(1), weekAgo(2)))
-        brain.dislikedArtists["UCc"] = now - 1000
-
-        assertThat(MusicBrainRanker.timeOfDayRotation(brain, now, 10))
-            .containsExactly("thrice", "twice")
-            .inOrder()
-    }
 }

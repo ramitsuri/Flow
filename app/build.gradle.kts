@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -11,6 +10,10 @@ plugins {
     alias(libs.plugins.room)
 }
 
+// Can be overridden by project properties VERSION_CODE and VERSION_NAME (e.g. from CI).
+val autoVersionCode = project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull() ?: 1
+val autoVersionName = project.findProperty("VERSION_NAME")?.toString() ?: "1.0.0"
+
 android {
     namespace = "io.github.aedev.flow"
     compileSdk = 37
@@ -19,8 +22,8 @@ android {
         applicationId = "io.github.aedev.flow"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "2.2.1"
+        versionCode = autoVersionCode
+        versionName = autoVersionName
 
         testInstrumentationRunner = "io.github.aedev.flow.HiltTestRunner"
         vectorDrawables {
@@ -40,15 +43,6 @@ android {
         includeInBundle = false
     }
 
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-            isUniversalApk = true
-        }
-    }
-
     flavorDimensions += "version"
     productFlavors {
         create("github") {
@@ -66,30 +60,6 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
-    }
-
-    signingConfigs {
-        create("release") {
-            val localProperties = Properties()
-            val localPropertiesFile = rootDir.resolve("local.properties")
-            if (localPropertiesFile.exists()) {
-                localPropertiesFile.inputStream().use { localProperties.load(it) }
-            }
-
-            storeFile = rootDir.resolve("release.keystore")
-            storePassword = (project.findProperty("storePassword") as? String)
-                ?: localProperties.getProperty("storePassword")
-                ?: System.getenv("STORE_PASSWORD")
-                ?: ""
-            keyAlias = (project.findProperty("keyAlias") as? String)
-                ?: localProperties.getProperty("keyAlias")
-                ?: System.getenv("KEY_ALIAS")
-                ?: ""
-            keyPassword = (project.findProperty("keyPassword") as? String)
-                ?: localProperties.getProperty("keyPassword")
-                ?: System.getenv("KEY_PASSWORD")
-                ?: ""
-        }
     }
 
     buildTypes {
@@ -123,20 +93,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // Use release signing if configured, otherwise fallback to debug
-            val releaseKeystore =
-                try {
-                    signingConfigs.getByName("release").storeFile
-                } catch (e: Exception) {
-                    null
-                }
-            if (releaseKeystore?.exists() == true) {
-                signingConfig = signingConfigs.getByName("release")
-                println("Using RELEASE signing config with keystore: ${releaseKeystore.absolutePath}")
-            } else {
-                signingConfig = null // Let Gradle build an unsigned APK for IzzyOnDroid/F-Droid
-                println("WARNING: Release keystore not found. Building UNSIGNED release APK.")
-            }
         }
     }
 

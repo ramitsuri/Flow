@@ -301,8 +301,7 @@ fun Modifier.videoPlayerControls(
                     // Nothing
                 },
             )
-        }
-        .pointerInput(currentIsFullscreen) {
+        }.pointerInput(currentIsFullscreen) {
             if (!currentIsFullscreen) return@pointerInput
 
             var isCenterZone = false

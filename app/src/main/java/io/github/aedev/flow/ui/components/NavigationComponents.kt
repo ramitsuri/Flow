@@ -69,7 +69,9 @@ fun FloatingBottomNavBar(
                     if (isHomeEnabled) add(NavItemSpec(0, Icons.Filled.Home, Icons.Outlined.Home, R.string.nav_home))
                     if (isShortsEnabled) add(NavItemSpec(1, shortsIcon, shortsIcon, R.string.nav_shorts))
                     if (isMusicEnabled) add(NavItemSpec(2, Icons.Filled.MusicNote, Icons.Outlined.MusicNote, R.string.nav_music))
-                    if (isSubscriptionsEnabled) add(NavItemSpec(3, Icons.Filled.Subscriptions, Icons.Outlined.Subscriptions, R.string.nav_subs))
+                    if (isSubscriptionsEnabled) {
+                        add(NavItemSpec(3, Icons.Filled.Subscriptions, Icons.Outlined.Subscriptions, R.string.nav_subs))
+                    }
                     add(NavItemSpec(4, Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary, R.string.nav_library))
                     if (isSearchEnabled) add(NavItemSpec(5, Icons.Filled.Search, Icons.Outlined.Search, R.string.nav_search))
                     if (isCategoriesEnabled) add(NavItemSpec(6, Icons.Filled.Explore, Icons.Outlined.Explore, R.string.nav_explore))
