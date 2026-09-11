@@ -55,4 +55,8 @@ object DatabaseModule {
 
     @Provides
     fun provideMusicGraphDao(database: AppDatabase): io.github.aedev.flow.data.local.dao.MusicGraphDao = database.musicGraphDao()
+
+    @Provides
+    fun provideExternalAppVideoDao(database: AppDatabase): io.github.aedev.flow.data.local.dao.ExternalAppVideoDao =
+        database.externalAppVideDao()
 }

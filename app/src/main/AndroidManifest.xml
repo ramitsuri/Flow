@@ -52,6 +52,11 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 
+    <uses-permission android:name="com.ramitsuri.videomonitor.READ_MONITORED_DATA" />
+
+    <queries>
+        <provider android:authorities="com.ramitsuri.videomonitor.provider" />
+    </queries>
     <application
         android:name=".FlowApplication"
         android:allowBackup="true"
@@ -166,7 +171,7 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        
+
         <!-- Media3 Music Service -->
         <service
             android:name=".service.Media3MusicService"
@@ -177,7 +182,7 @@
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
-        
+
         <!-- Video Playback Service (Media3 MediaSessionService) for background playback and media controls -->
         <service
             android:name=".service.VideoPlayerService"
@@ -216,9 +221,9 @@
             android:exported="false"
             android:foregroundServiceType="dataSync">
         </service>
-        
+
         <!-- Notification action receiver for downloads and other actions -->
-        <receiver 
+        <receiver
             android:name=".notification.NotificationActionReceiver"
             android:enabled="true"
             android:exported="false">

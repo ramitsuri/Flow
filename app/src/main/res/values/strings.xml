@@ -2803,4 +2803,14 @@
     <string name="remove_from_queue_confirmation">Are you sure you want to remove this video from the queue?</string>
     <string name="reorder_queue_item">Reorder queue item</string>
     <string name="music_search_no_results">No results for \"%1$s\"</string>
+
+    <!-- External Download Sync -->
+    <string name="sync_external_downloads_action">Sync external downloads</string>
+    <string name="sync_summary_title">Sync Complete</string>
+    <string name="sync_summary_body">Found %1$d videos. %2$d triggered, %3$d skipped, %4$d failed, %5$d removed.</string>
+    <string name="sync_failed_items_label">Failed to process:</string>
+    <string name="sync_retry_failed">Retry Failed</string>
+    <string name="sync_permission_denied">Permission denied</string>
+    <string name="sync_external_app_not_installed">Sync app not installed</string>
+    <string name="sync_external_app_failure">External sync failed</string>
 </resources>

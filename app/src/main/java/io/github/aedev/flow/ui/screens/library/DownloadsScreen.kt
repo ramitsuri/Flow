@@ -3,18 +3,27 @@ package io.github.aedev.flow.ui.screens.library
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,15 +38,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.aedev.flow.BuildConfig
 import io.github.aedev.flow.R
 import io.github.aedev.flow.data.music.DownloadedTrack
 import io.github.aedev.flow.data.video.DownloadedVideo
@@ -61,9 +74,40 @@ fun DownloadsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedKind by remember { mutableStateOf(MediaKind.Videos) }
     var showRemoveIncompleteDialog by remember { mutableStateOf(false) }
+    var showSyncSummaryDialog by remember { mutableStateOf(false) }
     var pendingDeletion by remember { mutableStateOf<PendingDeletion?>(null) }
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
+    val resources = LocalResources.current
+
+    val externalAppSyncLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.StartActivityForResult(),
+        ) {
+            viewModel.syncExternalDownloads()
+        }
+
+    fun launchExternalAppSync() {
+        val intent = context.packageManager.getLaunchIntentForPackage(EXTERNAL_APP_SYNC_PACKAGE)
+        if (intent != null) {
+            intent.putExtra(EXTERNAL_APP_SYNC_INTENT_EXTRA_KEY, true)
+            externalAppSyncLauncher.launch(intent)
+        } else {
+            Toast.makeText(context, resources.getString(R.string.sync_external_app_not_installed), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val externalPermission = "com.ramitsuri.videomonitor.READ_MONITORED_DATA"
+    val externalPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            if (granted) {
+                launchExternalAppSync()
+            } else {
+                Toast.makeText(context, resources.getString(R.string.sync_permission_denied), Toast.LENGTH_SHORT).show()
+            }
+        }
 
     val permissionsToRequest =
         remember {
@@ -101,6 +145,30 @@ fun DownloadsScreen(
                 title = stringResource(R.string.downloads_title),
                 onBack = if (isRoot) null else onBackClick,
                 actions = {
+                    if (uiState.externalSyncStatus.isSyncing) {
+                        CircularProgressIndicator(
+                            modifier =
+                                Modifier
+                                    .padding(end = 12.dp)
+                                    .size(24.dp),
+                            strokeWidth = 2.dp,
+                            strokeCap = StrokeCap.Round,
+                        )
+                    } else {
+                        IconButton(onClick = {
+                            if (ContextCompat.checkSelfPermission(context, externalPermission) == PackageManager.PERMISSION_GRANTED) {
+                                launchExternalAppSync()
+                            } else {
+                                externalPermissionLauncher.launch(externalPermission)
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Sync,
+                                contentDescription = stringResource(R.string.sync_external_downloads_action),
+                            )
+                        }
+                    }
+
                     if (uiState.incompleteDownloadCount > 0) {
                         IconButton(onClick = { showRemoveIncompleteDialog = true }) {
                             Icon(
@@ -206,6 +274,84 @@ fun DownloadsScreen(
         )
     }
 
+    LaunchedEffect(uiState.externalSyncStatus.lastSyncSummary) {
+        if (uiState.externalSyncStatus.lastSyncSummary != null) {
+            showSyncSummaryDialog = true
+            viewModel.syncExternalDownloadSummaryViewed()
+        }
+    }
+
+    if (showSyncSummaryDialog) {
+        uiState.externalSyncStatus.lastSyncSummary?.let { summary ->
+            AlertDialog(
+                onDismissRequest = { showSyncSummaryDialog = false },
+                title = { Text(stringResource(R.string.sync_summary_title)) },
+                text = {
+                    Column {
+                        Text(
+                            stringResource(
+                                R.string.sync_summary_body,
+                                summary.totalFound,
+                                summary.triggeredCount,
+                                summary.skippedAlreadyDownloaded,
+                                summary.failedCount,
+                                summary.removedCount,
+                            ),
+                        )
+
+                        if (uiState.externalSyncStatus.failedVideos.isNotEmpty()) {
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(R.string.sync_failed_items_label),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            LazyColumn(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp),
+                            ) {
+                                items(uiState.externalSyncStatus.failedVideos) { failed ->
+                                    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                                        Text(
+                                            text = failed.title,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.Medium,
+                                        )
+                                        failed.error?.let {
+                                            Text(
+                                                text = it,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.error,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showSyncSummaryDialog = false }) {
+                        Text(stringResource(R.string.btn_ok))
+                    }
+                },
+                dismissButton = {
+                    if (uiState.externalSyncStatus.failedVideos.isNotEmpty()) {
+                        TextButton(onClick = {
+                            showSyncSummaryDialog = false
+                            viewModel.syncExternalDownloads(retryFailedOnly = true)
+                        }) {
+                            Text(stringResource(R.string.sync_retry_failed))
+                        }
+                    }
+                },
+            )
+        }
+    }
+
     if (showRemoveIncompleteDialog) {
         AlertDialog(
             onDismissRequest = { showRemoveIncompleteDialog = false },
@@ -243,3 +389,11 @@ private data class PendingDeletion(
     val title: String,
     val kind: MediaKind,
 )
+
+private val EXTERNAL_APP_SYNC_PACKAGE =
+    if (BuildConfig.DEBUG) {
+        "com.ramitsuri.videomonitor.debug"
+    } else {
+        "com.ramitsuri.videomonitor"
+    }
+private const val EXTERNAL_APP_SYNC_INTENT_EXTRA_KEY = "refresh_and_exit"
