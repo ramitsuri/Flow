@@ -85,7 +85,7 @@ class NavigationDestinationsTest {
                     home = bits and 1 != 0,
                     shorts = bits and 2 != 0,
                     music = bits and 4 != 0,
-                    search = bits and 8 != 0,
+                    downloads = bits and 8 != 0,
                     categories = bits and 16 != 0,
                 )
 
