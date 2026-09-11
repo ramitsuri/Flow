@@ -8,45 +8,47 @@ internal data class NavigationVisibility(
     val home: Boolean = true,
     val shorts: Boolean = true,
     val music: Boolean = true,
-    val search: Boolean = false,
-    val categories: Boolean = false
+    val downloads: Boolean = false,
+    val categories: Boolean = false,
 )
 
 internal fun visibleNavTabIndices(
     order: List<Int>,
-    visibility: NavigationVisibility
+    visibility: NavigationVisibility,
 ): List<Int> {
-    val enabled = buildSet {
-        if (visibility.home) add(0)
-        if (visibility.shorts) add(1)
-        if (visibility.music) add(2)
-        add(3)
-        add(4)
-        if (visibility.search) add(5)
-        if (visibility.categories) add(6)
-    }
+    val enabled =
+        buildSet {
+            if (visibility.home) add(0)
+            if (visibility.shorts) add(1)
+            if (visibility.music) add(2)
+            add(3)
+            add(4)
+            if (visibility.downloads) add(5)
+            if (visibility.categories) add(6)
+        }
     return (order + DEFAULT_NAV_TAB_ORDER).distinct().filter(enabled::contains)
 }
 
 internal fun resolveDefaultNavTabIndex(
     preferredIndex: Int,
     order: List<Int>,
-    visibility: NavigationVisibility
+    visibility: NavigationVisibility,
 ): Int {
     val visible = visibleNavTabIndices(order, visibility)
     return preferredIndex.takeIf(visible::contains) ?: visible.first()
 }
 
-internal fun navRouteForIndex(index: Int): String = when (index) {
-    0 -> "home"
-    1 -> "shorts"
-    2 -> "music"
-    3 -> "subscriptions"
-    4 -> "library"
-    5 -> "search"
-    6 -> "categories"
-    else -> "home"
-}
+internal fun navRouteForIndex(index: Int): String =
+    when (index) {
+        0 -> "home"
+        1 -> "shorts"
+        2 -> "music"
+        3 -> "subscriptions"
+        4 -> "library"
+        5 -> "downloads?root=true"
+        6 -> "categories"
+        else -> "home"
+    }
 
 internal fun youtubeChannelUrl(channelIdOrHandle: String): String? {
     val value = channelIdOrHandle.trim()
@@ -69,14 +71,19 @@ private fun normalizeYoutubeChannelUrl(url: String): String {
     val host = uri.host?.lowercase().orEmpty()
     if (host != "youtube.com" && !host.endsWith(".youtube.com")) return url
 
-    val segments = uri.path.orEmpty().split('/').filter(String::isNotBlank)
+    val segments =
+        uri.path
+            .orEmpty()
+            .split('/')
+            .filter(String::isNotBlank)
     if (segments.isEmpty()) return url
 
-    val channelValue = when {
-        segments.first() == "channel" -> segments.getOrNull(1)
-        segments.first().startsWith("@") -> segments.first()
-        else -> null
-    } ?: return url
+    val channelValue =
+        when {
+            segments.first() == "channel" -> segments.getOrNull(1)
+            segments.first().startsWith("@") -> segments.first()
+            else -> null
+        } ?: return url
 
     return when {
         channelValue.startsWith("UC") -> "https://www.youtube.com/channel/$channelValue"

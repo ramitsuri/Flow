@@ -132,7 +132,7 @@ class PlayerPreferences(
         val SHORTS_NAVIGATION_ENABLED = booleanPreferencesKey("shorts_navigation_enabled")
         val BOTTOM_NAV_HIDE_ON_SCROLL = booleanPreferencesKey("bottom_nav_hide_on_scroll")
         val MUSIC_NAVIGATION_ENABLED = booleanPreferencesKey("music_navigation_enabled")
-        val SEARCH_NAV_TAB_ENABLED = booleanPreferencesKey("search_nav_tab_enabled")
+        val DOWNLOADS_NAV_TAB_ENABLED = booleanPreferencesKey("downloads_nav_tab_enabled")
         val CATEGORIES_NAV_TAB_ENABLED = booleanPreferencesKey("categories_nav_tab_enabled")
         val PREFERRED_LYRICS_PROVIDER = stringPreferencesKey("preferred_lyrics_provider")
         val LYRICS_PROVIDER_ORDER = stringPreferencesKey("lyrics_provider_order")
@@ -849,16 +849,16 @@ class PlayerPreferences(
         }
     }
 
-    // Search nav tab enabled preference
-    val searchNavigationEnabled: Flow<Boolean> =
+    // Downloads nav tab enabled preference
+    val downloadsNavigationEnabled: Flow<Boolean> =
         context.playerPreferencesDataStore.data
             .map { preferences ->
-                preferences[Keys.SEARCH_NAV_TAB_ENABLED] ?: true
+                preferences[Keys.DOWNLOADS_NAV_TAB_ENABLED] ?: true
             }
 
-    suspend fun setSearchNavigationEnabled(enabled: Boolean) {
+    suspend fun setDownloadsNavigationEnabled(enabled: Boolean) {
         context.playerPreferencesDataStore.edit { preferences ->
-            preferences[Keys.SEARCH_NAV_TAB_ENABLED] = enabled
+            preferences[Keys.DOWNLOADS_NAV_TAB_ENABLED] = enabled
         }
     }
 

@@ -55,7 +55,7 @@ fun FloatingBottomNavBar(
     isHomeEnabled: Boolean = true,
     isShortsEnabled: Boolean = true,
     isMusicEnabled: Boolean = true,
-    isSearchEnabled: Boolean = false,
+    isDownloadsEnabled: Boolean = false,
     isCategoriesEnabled: Boolean = false,
     isSubscriptionsEnabled: Boolean = false,
     navOrder: List<Int> = listOf(0, 1, 2, 3, 4, 5, 6),
@@ -63,7 +63,15 @@ fun FloatingBottomNavBar(
     val shortsIcon = ImageVector.vectorResource(id = R.drawable.ic_shorts)
 
     val enabledItems =
-        remember(isHomeEnabled, isShortsEnabled, isMusicEnabled, isSearchEnabled, isCategoriesEnabled, navOrder) {
+        remember(
+            isHomeEnabled,
+            isShortsEnabled,
+            isMusicEnabled,
+            isSubscriptionsEnabled,
+            isDownloadsEnabled,
+            isCategoriesEnabled,
+            navOrder,
+        ) {
             val items =
                 buildList {
                     if (isHomeEnabled) add(NavItemSpec(0, Icons.Filled.Home, Icons.Outlined.Home, R.string.nav_home))
@@ -73,7 +81,9 @@ fun FloatingBottomNavBar(
                         add(NavItemSpec(3, Icons.Filled.Subscriptions, Icons.Outlined.Subscriptions, R.string.nav_subs))
                     }
                     add(NavItemSpec(4, Icons.Filled.VideoLibrary, Icons.Outlined.VideoLibrary, R.string.nav_library))
-                    if (isSearchEnabled) add(NavItemSpec(5, Icons.Filled.Search, Icons.Outlined.Search, R.string.nav_search))
+                    if (isDownloadsEnabled) {
+                        add(NavItemSpec(5, Icons.Filled.FileDownload, Icons.Outlined.FileDownload, R.string.nav_downloads))
+                    }
                     if (isCategoriesEnabled) add(NavItemSpec(6, Icons.Filled.Explore, Icons.Outlined.Explore, R.string.nav_explore))
                 }
             val order = navOrder.withIndex().associate { it.value to it.index }

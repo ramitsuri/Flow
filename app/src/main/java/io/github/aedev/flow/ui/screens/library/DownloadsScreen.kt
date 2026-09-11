@@ -55,6 +55,7 @@ fun DownloadsScreen(
     onMusicClick: (List<DownloadedTrack>, Int) -> Unit,
     onHomeClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isRoot: Boolean = false,
     viewModel: DownloadsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -98,7 +99,7 @@ fun DownloadsScreen(
         topBar = {
             FlowTopBar(
                 title = stringResource(R.string.downloads_title),
-                onBack = onBackClick,
+                onBack = if (isRoot) null else onBackClick,
                 actions = {
                     if (uiState.incompleteDownloadCount > 0) {
                         IconButton(onClick = { showRemoveIncompleteDialog = true }) {

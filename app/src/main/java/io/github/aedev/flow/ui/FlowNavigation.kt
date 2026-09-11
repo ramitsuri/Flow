@@ -1,15 +1,16 @@
 package io.github.aedev.flow.ui
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,7 +26,6 @@ import io.github.aedev.flow.data.model.Video
 import io.github.aedev.flow.data.music.model.MusicTrack
 import io.github.aedev.flow.data.shorts.queue.ShortsQueueSource
 import io.github.aedev.flow.data.shorts.queue.openAtVideoId
-import io.github.aedev.flow.player.EnhancedMusicPlayerManager
 import io.github.aedev.flow.player.GlobalPlayerState
 import io.github.aedev.flow.ui.components.PlayerDraggableState
 import io.github.aedev.flow.ui.components.PlayerSheetValue
@@ -34,6 +34,7 @@ import io.github.aedev.flow.ui.screens.channel.ChannelScreen
 import io.github.aedev.flow.ui.screens.history.HistoryScreen
 import io.github.aedev.flow.ui.screens.home.HomeScreen
 import io.github.aedev.flow.ui.screens.home.HomeViewModel
+import io.github.aedev.flow.ui.screens.library.DownloadsScreen
 import io.github.aedev.flow.ui.screens.library.LibraryScreen
 import io.github.aedev.flow.ui.screens.likedvideos.LikesScreen
 import io.github.aedev.flow.ui.screens.music.ArtistPage
@@ -295,8 +296,7 @@ fun NavGraphBuilder.flowAppGraph(
 
     composable("search") {
         currentRoute.value = "search"
-        showBottomNav.value = true
-        selectedBottomNavIndex.intValue = 5
+        showBottomNav.value = false
         SearchScreen(
             onVideoClick = { video ->
                 if (video.isShort && !disableShortsPlayer) {
@@ -774,13 +774,29 @@ fun NavGraphBuilder.flowAppGraph(
         )
     }
 
-    composable("downloads") {
+    composable(
+        route = "downloads?root={root}",
+        arguments =
+            listOf(
+                navArgument("root") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                },
+            ),
+    ) { backStackEntry ->
+        val isRoot = backStackEntry.arguments?.getBoolean("root") ?: false
         currentRoute.value = "downloads"
-        showBottomNav.value = false
+        if (isRoot) {
+            selectedBottomNavIndex.intValue = 5
+            showBottomNav.value = true
+        } else {
+            showBottomNav.value = false
+        }
 
         val musicPlayerViewModel = sharedMusicPlayerViewModel()
 
-        io.github.aedev.flow.ui.screens.library.DownloadsScreen(
+        DownloadsScreen(
+            isRoot = isRoot,
             onBackClick = { navController.popBackStack() },
             onVideoClick = { videos, index ->
                 val videoList = videos.map { it.video }

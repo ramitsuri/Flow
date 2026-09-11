@@ -104,7 +104,7 @@ fun FlowApp(
     val isHomeNavigationEnabled by preferences.homeNavigationEnabled.collectAsState(initial = true)
     val isShortsNavigationEnabled by preferences.effectiveShortsNavigationEnabled.collectAsState(initial = true)
     val isMusicNavigationEnabled by preferences.musicNavigationEnabled.collectAsState(initial = true)
-    val isSearchNavigationEnabled by preferences.searchNavigationEnabled.collectAsState(initial = false)
+    val isDownloadsNavigationEnabled by preferences.downloadsNavigationEnabled.collectAsState(initial = false)
     val isCategoriesNavigationEnabled by preferences.categoriesNavigationEnabled.collectAsState(initial = false)
     val disableShortsPlayer by preferences.effectiveDisableShortsPlayer.collectAsState(initial = false)
     val musicPlayerBackgroundStyle by preferences.musicPlayerBackgroundStyle.collectAsState(
@@ -122,7 +122,7 @@ fun FlowApp(
             home = isHomeNavigationEnabled,
             shorts = isShortsNavigationEnabled,
             music = isMusicNavigationEnabled,
-            search = isSearchNavigationEnabled,
+            downloads = isDownloadsNavigationEnabled,
             categories = isCategoriesNavigationEnabled,
         )
     val resolvedDefaultNavTabIndex =
@@ -644,7 +644,7 @@ fun FlowApp(
                     isHomeEnabled = isHomeNavigationEnabled,
                     isShortsEnabled = isShortsNavigationEnabled,
                     isMusicEnabled = isMusicNavigationEnabled,
-                    isSearchEnabled = isSearchNavigationEnabled,
+                    isDownloadsEnabled = isDownloadsNavigationEnabled,
                     isCategoriesEnabled = isCategoriesNavigationEnabled,
                     navOrder = navTabOrder,
                     onItemSelected = { index ->
